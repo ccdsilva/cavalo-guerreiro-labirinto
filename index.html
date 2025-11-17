@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cavalo Guerreiro: Labirinto Onírico</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Modal de Login/Criação de Perfil -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h2>Bem-vindo ao Labirinto Onírico</h2>
+            <div class="login-tabs">
+                <button class="tab-btn active" data-tab="login">Entrar</button>
+                <button class="tab-btn" data-tab="create">Criar Perfil</button>
+            </div>
+            
+            <div id="login-form" class="tab-content active">
+                <input type="text" id="login-username" placeholder="Nome de usuário (5-13 caracteres)" maxlength="13">
+                <input type="password" id="login-password" placeholder="Senha (4-9 caracteres)" maxlength="9">
+                <button id="btn-login" class="btn btn-primary">Entrar</button>
+                <p id="login-error" class="error-message"></p>
+            </div>
+            
+            <div id="create-form" class="tab-content">
+                <input type="text" id="create-username" placeholder="Nome de usuário (5-13 caracteres alfanuméricos)" maxlength="13" pattern="[a-zA-Z0-9]+">
+                <input type="password" id="create-password" placeholder="Senha (4-9 caracteres alfanuméricos e especiais)" maxlength="9">
+                <button id="btn-create" class="btn btn-primary">Criar Perfil</button>
+                <p id="create-error" class="error-message"></p>
+            </div>
+            
+            <button id="btn-guest" class="btn btn-secondary">Continuar como Convidado</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🐴 Cavalo Guerreiro: Labirinto Onírico</h1>
+            <p class="subtitle">Guie o cavalo através do labirinto onírico para sua recuperação</p>
+            <div class="user-info">
+                <span id="current-user">Convidado</span>
+                <button id="btn-settings" class="btn-icon">⚙️</button>
+                <button id="btn-profile" class="btn-icon">👤</button>
+            </div>
+        </header>
+
+        <div class="game-panel">
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span class="stat-label">Pontuação:</span>
+                    <span id="score" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Casas Percorridas:</span>
+                    <span id="houses-visited" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Tempo:</span>
+                    <span id="timer" class="stat-value">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Movimentos:</span>
+                    <span id="moves" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Vidas:</span>
+                    <span id="lives" class="stat-value">3</span>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <button id="btn-new-game" class="btn btn-primary">Novo Jogo</button>
+                <button id="btn-undo" class="btn btn-secondary">Desfazer</button>
+                <select id="board-size" class="select-input">
+                    <option value="5">5x5</option>
+                    <option value="6">6x6</option>
+                    <option value="8" selected>8x8</option>
+                    <option value="10">10x10</option>
+                </select>
+                <select id="board-width" class="select-input" style="display: none;">
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8" selected>8</option>
+                    <option value="9">9</option>
+                </select>
+                <select id="board-height" class="select-input" style="display: none;">
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8" selected>8</option>
+                    <option value="9">9</option>
+                </select>
+                <select id="game-mode" class="select-input">
+                    <option value="free">Livre</option>
+                    <option value="progressive">Cronômetro Progressivo</option>
+                    <option value="regressive">Cronômetro Regressivo</option>
+                </select>
+                <button id="btn-toggle-rectangular" class="btn btn-secondary">Tabuleiro Retangular</button>
+            </div>
+        </div>
+
+        <!-- Controles Alternativos -->
+        <div class="control-modes">
+            <div id="keyboard-controls" style="display: none;">
+                <p>Use as setas para navegar e Enter para confirmar</p>
+            </div>
+            <div id="text-controls" style="display: none;">
+                <input type="text" id="coordinate-input" placeholder="Digite coordenada (ex: a3)" maxlength="2">
+                <p id="input-error" class="error-message" style="display: none;"></p>
+            </div>
+        </div>
+
+        <div class="board-container">
+            <div id="chessboard" class="chessboard"></div>
+        </div>
+
+        <div class="info-panel">
+            <div class="instructions">
+                <h3>Instruções:</h3>
+                <p>• Clique nas casas destacadas para mover o cavalo</p>
+                <p>• O cavalo se move em forma de "L" (duas casas em uma direção e uma perpendicular)</p>
+                <p>• Percorra o maior número de casas únicas possível</p>
+                <p>• Cada casa percorrida será numerada e as cores evoluirão conforme o progresso</p>
+                <p>• Itens especiais: 🍎 Alimento, ⏰ Relógio, 🐴 Ferradura, 🏜️ Areia, 🕳️ Buraco, 💣 Mina, 💆 Cela Massageadora</p>
+            </div>
+        </div>
+
+        <div id="game-over-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Jogo Finalizado!</h2>
+                <div class="final-stats">
+                    <p><strong>Pontuação Final:</strong> <span id="final-score">0</span></p>
+                    <p><strong>Casas Percorridas:</strong> <span id="final-houses">0</span></p>
+                    <p><strong>Tempo Total:</strong> <span id="final-time">00:00</span></p>
+                </div>
+                <div id="analysis-section"></div>
+                <div class="modal-actions">
+                    <button id="btn-restart" class="btn btn-primary">Jogar Novamente</button>
+                    <button id="btn-view-path" class="btn btn-secondary">Ver Caminho</button>
+                    <button id="btn-rankings" class="btn btn-secondary">Ranqueamentos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Configurações</h2>
+            <div class="settings-section">
+                <h3>Tema Visual</h3>
+                <select id="theme-select" class="select-input">
+                    <option value="default">Padrão</option>
+                    <option value="serene">Sonho Sereno</option>
+                    <option value="mystical">Crepúsculo Místico</option>
+                    <option value="aurora">Aurora Revigorante</option>
+                    <option value="forest">Floresta Encantada</option>
+                    <option value="crystal">Cânions Cristalinos</option>
+                </select>
+            </div>
+            <div class="settings-section">
+                <h3>Estilo do Cavalo</h3>
+                <select id="knight-style-select" class="select-input">
+                    <option value="default">Padrão</option>
+                    <option value="golden">Dourado</option>
+                    <option value="silver">Prateado</option>
+                    <option value="dark">Escuro</option>
+                    <option value="vibrant">Vibrante</option>
+                </select>
+            </div>
+            <div class="settings-section">
+                <h3>Controles</h3>
+                <select id="control-mode-select" class="select-input">
+                    <option value="touch">Toque/Clique</option>
+                    <option value="keyboard">Teclado</option>
+                    <option value="text">Digitação</option>
+                </select>
+            </div>
+            <div class="settings-section">
+                <h3>Áudio</h3>
+                <label><input type="checkbox" id="sound-enabled"> Som Habilitado</label>
+                <label>Volume Música: <input type="range" id="music-volume" min="0" max="100" value="70"></label>
+                <label>Volume Efeitos: <input type="range" id="sfx-volume" min="0" max="100" value="80"></label>
+            </div>
+            <div class="settings-section">
+                <h3>Acessibilidade</h3>
+                <label><input type="checkbox" id="audio-description"> Audiodescrição</label>
+            </div>
+            <div class="settings-section">
+                <h3>Idioma</h3>
+                <select id="language-select" class="select-input">
+                    <option value="pt-BR">Português (BR)</option>
+                    <option value="en-US">English</option>
+                    <option value="es-ES">Español</option>
+                </select>
+            </div>
+            <button id="btn-save-settings" class="btn btn-primary">Salvar</button>
+            <button id="btn-close-settings" class="btn btn-secondary">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="storage.js"></script>
+    <script src="audio.js"></script>
+    <script src="analytics.js"></script>
+    <script src="pathLibrary.js"></script>
+    <script src="themes.js"></script>
+    <script src="controls.js"></script>
+    <script src="achievements.js"></script>
+    <script src="game.js"></script>
+    
+    <script>
+        // Gerenciamento de login
+        document.getElementById('btn-login')?.addEventListener('click', () => {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const result = storageManager.authenticateProfile(username, password);
+            
+            if (result.success) {
+                storageManager.setCurrentProfile(username);
+                document.getElementById('login-modal').classList.add('hidden');
+                document.getElementById('current-user').textContent = username;
+                initGame();
+            } else {
+                document.getElementById('login-error').textContent = result.message;
+            }
+        });
+        
+        document.getElementById('btn-create')?.addEventListener('click', () => {
+            const username = document.getElementById('create-username').value;
+            const password = document.getElementById('create-password').value;
+            const result = storageManager.createProfile(username, password);
+            
+            if (result.success) {
+                storageManager.setCurrentProfile(username);
+                document.getElementById('login-modal').classList.add('hidden');
+                document.getElementById('current-user').textContent = username;
+                initGame();
+            } else {
+                document.getElementById('create-error').textContent = result.message;
+            }
+        });
+        
+        document.getElementById('btn-guest')?.addEventListener('click', () => {
+            document.getElementById('login-modal').classList.add('hidden');
+            initGame();
+        });
+        
+        // Tabs do login
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`${tab}-form`).classList.add('active');
+            });
+        });
+        
+        // Configurações
+        document.getElementById('btn-settings')?.addEventListener('click', () => {
+            document.getElementById('settings-modal').classList.remove('hidden');
+            const settings = storageManager.getSettings();
+            document.getElementById('theme-select').value = settings.theme || 'default';
+            document.getElementById('knight-style-select').value = settings.knightStyle || 'default';
+            document.getElementById('control-mode-select').value = settings.controlMode || 'touch';
+            document.getElementById('sound-enabled').checked = settings.soundEnabled !== false;
+            document.getElementById('music-volume').value = (settings.musicVolume || 0.7) * 100;
+            document.getElementById('sfx-volume').value = (settings.sfxVolume || 0.8) * 100;
+            document.getElementById('audio-description').checked = settings.audioDescription || false;
+            document.getElementById('language-select').value = settings.language || 'pt-BR';
+        });
+        
+        document.getElementById('btn-save-settings')?.addEventListener('click', () => {
+            const newSettings = {
+                theme: document.getElementById('theme-select').value,
+                knightStyle: document.getElementById('knight-style-select').value,
+                controlMode: document.getElementById('control-mode-select').value,
+                soundEnabled: document.getElementById('sound-enabled').checked,
+                musicVolume: document.getElementById('music-volume').value / 100,
+                sfxVolume: document.getElementById('sfx-volume').value / 100,
+                audioDescription: document.getElementById('audio-description').checked,
+                language: document.getElementById('language-select').value
+            };
+            
+            storageManager.updateSettings(newSettings);
+            themeManager.applyTheme(newSettings.theme);
+            themeManager.applyKnightStyle(newSettings.knightStyle);
+            controlManager.setControlMode(newSettings.controlMode);
+            audioManager.updateSettings(newSettings);
+            document.getElementById('settings-modal').classList.add('hidden');
+        });
+        
+        document.getElementById('btn-close-settings')?.addEventListener('click', () => {
+            document.getElementById('settings-modal').classList.add('hidden');
+        });
+        
+        // Toggle tabuleiro retangular
+        document.getElementById('btn-toggle-rectangular')?.addEventListener('click', () => {
+            const boardSize = document.getElementById('board-size');
+            const boardWidth = document.getElementById('board-width');
+            const boardHeight = document.getElementById('board-height');
+            
+            if (boardSize.style.display === 'none') {
+                boardSize.style.display = 'inline-block';
+                boardWidth.style.display = 'none';
+                boardHeight.style.display = 'none';
+            } else {
+                boardSize.style.display = 'none';
+                boardWidth.style.display = 'inline-block';
+                boardHeight.style.display = 'inline-block';
+            }
+        });
+    </script>
+</body>
+</html>
+
