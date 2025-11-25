@@ -116,23 +116,6 @@ Funcionalidades planejadas para próximas versões:
 - 📊 Estatísticas avançadas da comunidade
 - 🎨 Mais temas e customizações
 
-## 📁 Estrutura de Arquivos
-
-```
-cavalo-guerreiro-labirinto/
-├── index.html          # Interface principal
-├── game.js             # Lógica do jogo
-├── storage.js          # Sistema de armazenamento e perfis
-├── audio.js            # Gerenciamento de áudio
-├── analytics.js         # Análises pós-jogo
-├── pathLibrary.js      # Biblioteca de caminhos
-├── themes.js           # Gerenciamento de temas
-├── controls.js         # Controles alternativos
-├── achievements.js     # Sistema de conquistas
-├── styles.css          # Estilos e temas
-├── README.md           # Este arquivo
-└── COMO_JOGAR.md      # Guia completo de como jogar
-```
 
 ## 📄 Licença
 
