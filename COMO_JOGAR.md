@@ -1,6 +1,6 @@
 # 🎮 Como Jogar - Cavalo Guerreiro: Labirinto Onírico
 
-## 🚀 Como Iniciar o Jogo na sua máquina
+## 🚀 Como Iniciar o Jogo na sua máquina.
 
 ### Opção 1: Abrir diretamente no navegador
 1. Certifique-se de que todos os arquivos estão na mesma pasta:
